@@ -54,13 +54,16 @@ class TokenTextSplitter(MetadataAwareTextSplitter):
         tokenizer: Optional[Callable] = None,
         callback_manager: Optional[CallbackManager] = None,
         separator: str = " ",
-        backup_separators: Optional[List[str]] = ["\n"],
+        backup_separators: Optional[List[str]] = None,
         keep_whitespaces: bool = False,
         include_metadata: bool = True,
         include_prev_next_rel: bool = True,
         id_func: Optional[Callable[[int, Document], str]] = None,
     ):
         """Initialize with parameters."""
+        # Avoid sharing a single mutable list across every call that omits the arg.
+        if backup_separators is None:
+            backup_separators = ["\n"]
         if chunk_overlap > chunk_size:
             raise ValueError(
                 f"Got a larger chunk overlap ({chunk_overlap}) than chunk size "
@@ -89,7 +92,7 @@ class TokenTextSplitter(MetadataAwareTextSplitter):
         chunk_size: int = DEFAULT_CHUNK_SIZE,
         chunk_overlap: int = DEFAULT_CHUNK_OVERLAP,
         separator: str = " ",
-        backup_separators: Optional[List[str]] = ["\n"],
+        backup_separators: Optional[List[str]] = None,
         callback_manager: Optional[CallbackManager] = None,
         keep_whitespaces: bool = False,
         include_metadata: bool = True,

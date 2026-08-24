@@ -89,3 +89,25 @@ def test_split_with_metadata(english_text: str) -> None:
     for chunk in chunks:
         node_content = chunk + metadata_str
         assert len(tokenizer.encode(node_content)) <= 100
+
+
+def test_backup_separators_default_not_shared_mutable() -> None:
+    """backup_separators must not default to a shared mutable list.
+
+    Omitting the argument still yields ["\n"], but each instance must get its own
+    list so a mutation on one cannot leak into another.
+    """
+    import inspect
+
+    default = (
+        inspect.signature(TokenTextSplitter.__init__)
+        .parameters["backup_separators"]
+        .default
+    )
+    assert default is None
+
+    a = TokenTextSplitter()
+    b = TokenTextSplitter()
+    assert a.backup_separators == ["\n"]
+    assert b.backup_separators == ["\n"]
+    assert a.backup_separators is not b.backup_separators
